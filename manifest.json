@@ -1,0 +1,16 @@
+{
+  "name": "إشراقة خير",
+  "short_name": "إشراقة خير",
+  "description": "القرآن الكريم والاستماع والرقية والأذكار وصدقة جارية",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#071712",
+  "theme_color": "#071712",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3067/3067402.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

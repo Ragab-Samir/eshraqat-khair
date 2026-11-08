@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إشراقة خير | القرآن الكريم والإذاعات والأذكار</title>
+    
+    <!-- ربط تطبيق الويب التقدمي PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#071712">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="إشراقة خير">
+
+    <!-- خطوط وأيقونات -->
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-main: #071712;
+            --bg-card: rgba(18, 43, 35, 0.75);
+            --gold-primary: #D4AF37;
+            --gold-light: #F3E5AB;
+            --gold-border: rgba(212, 175, 55, 0.28);
+            --text-white: #FFFFFF;
+            --text-muted: #B0C4BC;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            background-image: radial-gradient(circle at 50% 0%, #113328 0%, #071712 75%);
+            color: var(--text-white);
+            min-height: 100vh;
+            padding-bottom: 140px;
+            overflow-x: hidden;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(7, 23, 18, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--gold-border);
+            padding: 14px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--gold-primary);
+        }
+
+        .desktop-nav {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 8px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            color: var(--gold-primary);
+            border-color: var(--gold-border);
+            background: rgba(212, 175, 55, 0.08);
+        }
+
+        .install-btn {
+            background: rgba(212, 175, 55, 0.15);
+            border: 1px solid var(--gold-primary);
+            color: var(--gold-light);
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+        }
+
+        .install-btn:hover {
+            background: var(--gold-primary);
+            color: #071712;
+        }
+
+        .container {
+            max-width: 1150px;
+            margin: 24px auto;
+            padding: 0 16px;
+        }
+
+        .page-section {
+            display: none;
+        }
+        .page-section.active-page {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--gold-border);
+            border-radius: 18px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .sadaqa-card {
+            text-align: center;
+            background: linear-gradient(145deg, rgba(22, 56, 45, 0.85), rgba(10, 29, 23, 0.9));
+            border: 1.5px solid var(--gold-primary);
+        }
+
+        .sadaqa-badge {
+            display: inline-block;
+            background: rgba(212, 175, 55, 0.15);
+            color: var(--gold-primary);
+            border: 1px solid var(--gold-border);
+            padding: 4px 16px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .sadaqa-title {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 18px;
+        }
+
+        .names-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            max-width: 900px;
+            margin: 0 auto 20px;
+        }
+
+        .name-box {
+            background: rgba(7, 23, 18, 0.6);
+            border: 1px solid var(--gold-border);
+            padding: 16px;
+            border-radius: 14px;
+        }
+
+        .name-box span {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--gold-primary);
+            margin-bottom: 4px;
+        }
+
+        .name-box h3 {
+            font-family: 'Amiri', serif;
+            font-size: 1.35rem;
+            color: var(--text-white);
+            font-weight: 700;
+        }
+
+        .sadaqa-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #D4AF37, #B5902B);
+            color: #071712;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--gold-light);
+            border: 1px solid var(--gold-primary);
+            padding: 10px 22px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .dua-collapse {
+            display: none;
+            margin-top: 18px;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 12px;
+            border-right: 3px solid var(--gold-primary);
+            font-family: 'Amiri', serif;
+            font-size: 1.25rem;
+            line-height: 1.9;
+            color: var(--gold-light);
+        }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #48BB78;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #48BB78;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.7; }
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .item-card {
+            background: rgba(12, 34, 27, 0.6);
+            border: 1px solid var(--gold-border);
+            padding: 16px;
+            border-radius: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .item-card:hover {
+            border-color: var(--gold-primary);
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .dhikr-card {
+            background: rgba(12, 34, 27, 0.6);
+            border: 1px solid var(--gold-border);
+            padding: 20px;
+            border-radius: 14px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .dhikr-text {
+            font-family: 'Amiri', serif;
+            font-size: 1.25rem;
+            color: var(--text-white);
+            line-height: 1.8;
+            flex: 1;
+        }
+
+        .dhikr-counter-btn {
+            background: rgba(212, 175, 55, 0.15);
+            border: 1px solid var(--gold-primary);
+            color: var(--gold-light);
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            min-width: 85px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .sticky-player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(9, 28, 22, 0.96);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid var(--gold-primary);
+            padding: 12px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 200;
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .play-main-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--gold-primary);
+            color: #071712;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #06130E;
+            border-top: 1px solid var(--gold-border);
+            padding: 8px 4px;
+            justify-content: space-around;
+            z-index: 250;
+        }
+
+        .mobile-nav-item {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+
+        .mobile-nav-item i {
+            font-size: 1.1rem;
+        }
+
+        .mobile-nav-item.active {
+            color: var(--gold-primary);
+        }
+
+        @media (max-width: 768px) {
+            .desktop-nav { display: none; }
+            .mobile-bottom-nav { display: flex; }
+            .sticky-player { bottom: 57px; padding: 10px 16px; }
+            .sadaqa-actions { flex-direction: column; }
+            .btn-gold, .btn-outline { width: 100%; justify-content: center; }
+            .dhikr-card { flex-direction: column; align-items: stretch; text-align: right; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <i class="fa-solid fa-mosque"></i>
+            <span>إشراقة خير</span>
+        </div>
+
+        <nav class="desktop-nav">
+            <button class="nav-btn active" onclick="switchPage('home', this)"><i class="fa-solid fa-house"></i> الرئيسية</button>
+            <button class="nav-btn" onclick="switchPage('radio', this)"><i class="fa-solid fa-radio"></i> الإذاعات</button>
+            <button class="nav-btn" onclick="switchPage('quran', this)"><i class="fa-solid fa-book-open-reader"></i> التلاوات</button>
+            <button class="nav-btn" onclick="switchPage('adhkar', this)"><i class="fa-solid fa-hands-praying"></i> الأذكار</button>
+            <button class="nav-btn" onclick="switchPage('prayer', this)"><i class="fa-solid fa-clock"></i> المواقيت</button>
+            
+            <button id="installAppBtn" class="install-btn">
+                <i class="fa-solid fa-download"></i> تثبيت
+            </button>
+        </nav>
+    </header>
+
+    <main class="container">
+        
+        <!-- 1. صفحة الرئيسية -->
+        <section id="home" class="page-section active-page">
+            <div class="glass-card sadaqa-card">
+                <span class="sadaqa-badge"><i class="fa-solid fa-seedling"></i> صدقة جارية</span>
+                <p class="sadaqa-title">اللهم اجعل ثواب كل آية تُسمع أو تُقرأ في هذا الموقع نوراً ورفعةً في درجات:</p>
+                
+                <div class="names-grid">
+                    <div class="name-box">
+                        <span>أبي العزيز</span>
+                        <h3>سمير ربيع روبي</h3>
+                    </div>
+                    <div class="name-box">
+                        <span>صديقي العزيز</span>
+                        <h3>عبد الله ربيع عبد الحفيظ</h3>
+                    </div>
+                    <div class="name-box">
+                        <span>والد زوجتي العزيز</span>
+                        <h3>موسى حسين عثمان</h3>
+                    </div>
+                </div>
+
+                <div class="sadaqa-actions">
+                    <button class="btn-gold" onclick="playAudio('https://server8.mp3quran.net/afs/001.mp3', 'سورة الفاتحة - مشاري العفاسي')">
+                        <i class="fa-solid fa-play"></i> استمع إلى سورة الفاتحة
+                    </button>
+                    <button class="btn-outline" onclick="toggleDua()">
+                        <i class="fa-solid fa-hands-holding-circle"></i> الدعاء لهم <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
+
+                <div class="dua-collapse" id="duaBox">
+                    «اللَّهُمَّ اغْفِرْ لَهُمْ وَلِمَوْتَى الْمُسْلِمِينَ، وَارْحَمْهُمْ، وَعَافِهِمْ وَاعْفُ عَنْهُمْ، وَأَكْرِمْ نُزُلَهُمْ، وَوَسِّعْ مُدْخَلَهُمْ، وَاغْسِلْهُمْ بِالْمَاءِ وَالثَّلْجِ وَالْبَرَدِ، وَنَقِّهِمْ مِنَ الْخَطَايَا كَمَا يُنَقَّى الثَّوْبُ الأَبْيَضُ مِنَ الدَّنَسِ، وَاجْعَلِ الْقُرْآنَ الْعَظِيمَ شَفِيعاً لَهُمْ وَنُوراً فِي قُبُورِهِمْ يَا أَرْحَمَ الرَّاحِمِينَ».
+                </div>
+            </div>
+
+            <div class="quick-grid">
+                <div class="glass-card live-radio-box" style="display:flex; flex-direction:column; justify-content:space-between;">
+                    <div>
+                        <div class="live-indicator">
+                            <span class="live-dot"></span> بث مباشر الآن · مصر
+                        </div>
+                        <h2 style="margin: 10px 0 6px; color: var(--gold-light);">إذاعة القرآن الكريم من القاهرة</h2>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">بث حي ومستمر على مدار الساعة لأعذب التلاوات.</p>
+                    </div>
+                    <button class="btn-gold" onclick="playAudio('https://stream.radiojar.com/8s5u5tpdtwzuv', 'بث مباشر: إذاعة القرآن الكريم من القاهرة')">
+                        <i class="fa-solid fa-tower-broadcast"></i> تشغيل الإذاعة الآن
+                    </button>
+                </div>
+
+                <div class="glass-card" style="text-align: center;">
+                    <span style="color: var(--gold-primary); font-size: 0.9rem; font-weight: 700;">✦ استراحة ذكر وطمأنينة ✦</span>
+                    <p id="zikrText" style="font-family: 'Amiri', serif; font-size: 1.4rem; margin: 18px 0; color: var(--text-white);">
+                        «سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ»
+                    </p>
+                    <button class="btn-outline" style="margin: 0 auto;" onclick="nextZikr()">
+                        <i class="fa-solid fa-rotate"></i> ذكر آخر
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. صفحة الإذاعات -->
+        <section id="radio" class="page-section">
+            <div class="glass-card">
+                <h2 style="color: var(--gold-primary); margin-bottom: 12px;"><i class="fa-solid fa-radio"></i> الإذاعات المباشرة</h2>
+                <div class="items-grid">
+                    <div class="item-card">
+                        <div><h4>إذاعة القرآن من القاهرة</h4><span style="font-size: 0.8rem; color: #48BB78;">مباشر · مصر</span></div>
+                        <button class="btn-gold" style="padding: 6px 14px;" onclick="playAudio('https://stream.radiojar.com/8s5u5tpdtwzuv', 'إذاعة القرآن الكريم من القاهرة')"><i class="fa-solid fa-play"></i></button>
+                    </div>
+                    <div class="item-card">
+                        <div><h4>إذاعة القرآن من السعودية</h4><span style="font-size: 0.8rem; color: #48BB78;">مباشر · الرياض</span></div>
+                        <button class="btn-gold" style="padding: 6px 14px;" onclick="playAudio('https://n06.radiojar.com/8s5u5tpdtwzuv?rj-ttl=5&rj-tok=AAABkT6H-50A0QGg8R2cTzM16A', 'إذاعة القرآن الكريم من السعودية')"><i class="fa-solid fa-play"></i></button>
+                    </div>
+                    <div class="item-card">
+                        <div><h4>إذاعة الشارقة للقرآن</h4><span style="font-size: 0.8rem; color: #48BB78;">مباشر · الإمارات</span></div>
+                        <button class="btn-gold" style="padding: 6px 14px;" onclick="playAudio('https://stream.asharqia.com/quran', 'إذاعة القرآن الكريم من الشارقة')"><i class="fa-solid fa-play"></i></button>
+                    </div>
+                    <div class="item-card">
+                        <div><h4>إذاعة الرقية الشرعية</h4><span style="font-size: 0.8rem; color: #48BB78;">مباشر · متواصلة</span></div>
+                        <button class="btn-gold" style="padding: 6px 14px;" onclick="playAudio('https://qurango.net/radio/roqiah', 'إذاعة الرقية الشرعية')"><i class="fa-solid fa-play"></i></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. صفحة التلاوات (الحصري والمعيقلي كاملاً) -->
+        <section id="quran" class="page-section">
+            <div class="glass-card">
+                <h2 style="color: var(--gold-primary); margin-bottom: 6px;"><i class="fa-solid fa-book-open-reader"></i> المصحف المرتل (القرآن كاملاً)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">استمع إلى سور القرآن الكريم كاملاً بصوت الشيخين الفاضلين:</p>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button class="btn-gold" onclick="loadReciter('hussary', 'الشيخ محمود خليل الحصري')" id="reciterHussary" style="flex:1;">محمود خليل الحصري (كاملًا)</button>
+                    <button class="btn-outline" onclick="loadReciter('maher', 'الشيخ ماهر المعيقلي')" id="reciterMaher" style="flex:1;">ماهر المعيقلي (كاملًا)</button>
+                </div>
+
+                <div id="surahListGrid" class="items-grid" style="max-height: 450px; overflow-y: auto; padding-left: 5px;">
+                    <!-- يتم تعبئة السور الـ 114 برمجياً هنا -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. صفحة الأذكار -->
+        <section id="adhkar" class="page-section">
+            <div class="glass-card">
+                <h2 style="color: var(--gold-primary); margin-bottom: 12px;"><i class="fa-solid fa-hands-praying"></i> الأذكار اليومية والعداد</h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">العداد يتجدد ويتصفر تلقائياً مع بداية كل يوم جديد.</p>
+                <div id="dhkarContainer"></div>
+            </div>
+        </section>
+
+        <!-- 5. صفحة مواقيت الصلاة -->
+        <section id="prayer" class="page-section">
+            <div class="glass-card" style="text-align: center;">
+                <h2 style="color: var(--gold-primary); margin-bottom: 12px;"><i class="fa-solid fa-clock"></i> مواقيت الصلاة</h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">توقيت جمهورية مصر العربية (بني سويف / إهناسيا).</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; margin-top: 20px;">
+                    <div style="background: rgba(7,23,18,0.7); border:1px solid var(--gold-border); padding:16px; border-radius:12px;"><span style="color:var(--text-muted); display:block; margin-bottom:6px;">الفجر</span><strong style="font-size:1.2rem; color:var(--gold-light);">05:05 ص</strong></div>
+                    <div style="background: rgba(7,23,18,0.7); border:1px solid var(--gold-border); padding:16px; border-radius:12px;"><span style="color:var(--text-muted); display:block; margin-bottom:6px;">الشروق</span><strong style="font-size:1.2rem; color:var(--gold-light);">06:35 ص</strong></div>
+                    <div style="background: rgba(7,23,18,0.7); border:1px solid var(--gold-border); padding:16px; border-radius:12px;"><span style="color:var(--text-muted); display:block; margin-bottom:6px;">الظهر</span><strong style="font-size:1.2rem; color:var(--gold-light);">11:42 ص</strong></div>
+                    <div style="background: rgba(7,23,18,0.7); border:1px solid var(--gold-border); padding:16px; border-radius:12px;"><span style="color:var(--text-muted); display:block; margin-bottom:6px;">العصر</span><strong style="font-size:1.2rem; color:var(--gold-light);">02:44 م</strong></div>
+                    <div style="background: rgba(7,23,18,0.7); border:1px solid var(--gold-border); padding:16px; border-radius:12px;"><span style="color:var(--text-muted); display:block; margin-bottom:6px;">المغرب</span><strong style="font-size:1.2rem; color:var(--gold-light);">05:10 م</strong></div>
+                    <div style="background: rgba(7,23,18,0.7); border:1px solid var(--gold-border); padding:16px; border-radius:12px;"><span style="color:var(--text-muted); display:block; margin-bottom:6px;">العشاء</span><strong style="font-size:1.2rem; color:var(--gold-light);">06:28 م</strong></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- المشغل الصوتي السفلي -->
+    <div class="sticky-player">
+        <div class="player-info">
+            <button class="play-main-btn" onclick="togglePlay()"><i class="fa-solid fa-play" id="playIcon"></i></button>
+            <div>
+                <div id="nowPlayingTitle" style="font-weight: 700; color: var(--gold-light); font-size: 0.95rem;">لم يبدأ التشغيل بعد</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">اختر إذاعة أو سورة للاستماع</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- شريط التنقل السفلي للموبايل -->
+    <nav class="mobile-bottom-nav">
+        <button class="mobile-nav-item active" onclick="switchPage('home', this)"><i class="fa-solid fa-house"></i><span>الرئيسية</span></button>
+        <button class="mobile-nav-item" onclick="switchPage('radio', this)"><i class="fa-solid fa-radio"></i><span>الإذاعات</span></button>
+        <button class="mobile-nav-item" onclick="switchPage('quran', this)"><i class="fa-solid fa-book-open-reader"></i><span>التلاوات</span></button>
+        <button class="mobile-nav-item" onclick="switchPage('adhkar', this)"><i class="fa-solid fa-hands-praying"></i><span>الأذكار</span></button>
+        <button class="mobile-nav-item" onclick="switchPage('prayer', this)"><i class="fa-solid fa-clock"></i><span>المواقيت</span></button>
+    </nav>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW error:', err));
+            });
+        }
+
+        let deferredPrompt;
+        const installBtn = document.getElementById('installAppBtn');
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'flex';
+            installBtn.addEventListener('click', () => {
+                installBtn.style.display = 'none';
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+            });
+        });
+
+        function switchPage(pageId, btnElement) {
+            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active-page'));
+            document.getElementById(pageId).classList.add('active-page');
+            document.querySelectorAll('.nav-btn, .mobile-nav-item').forEach(btn => btn.classList.remove('active'));
+            if(btnElement) btnElement.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleDua() {
+            const box = document.getElementById('duaBox');
+            box.style.display = (box.style.display === 'block') ? 'none' : 'block';
+        }
+
+        const audio = new Audio();
+        const playIcon = document.getElementById('playIcon');
+        const titleEl = document.getElementById('nowPlayingTitle');
+
+        function playAudio(url, title) {
+            audio.src = url;
+            titleEl.textContent = title;
+            audio.play();
+            playIcon.className = 'fa-solid fa-pause';
+        }
+
+        function togglePlay() {
+            if (!audio.src) return;
+            if (audio.paused) {
+                audio.play();
+                playIcon.className = 'fa-solid fa-pause';
+            } else {
+                audio.pause();
+                playIcon.className = 'fa-solid fa-play';
+            }
+        }
+
+        const surahNames = [
+            "الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المداثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","اللليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"
+        ];
+
+        let currentReciterServer = "https://server13.mp3quran.net/husr/";
+        let currentReciterName = "محمود خليل الحصري";
+
+        function loadReciter(type, name) {
+            currentReciterName = name;
+            if(type === 'hussary') {
+                currentReciterServer = "https://server13.mp3quran.net/husr/";
+                document.getElementById('reciterHussary').className = "btn-gold";
+                document.getElementById('reciterMaher').className = "btn-outline";
+            } else {
+                currentReciterServer = "https://server11.mp3quran.net/maher/";
+                document.getElementById('reciterMaher').className = "btn-gold";
+                document.getElementById('reciterHussary').className = "btn-outline";
+            }
+            renderSurahsList();
+        }
+
+        function renderSurahsList() {
+            const grid = document.getElementById('surahListGrid');
+            grid.innerHTML = '';
+            surahNames.forEach((name, index) => {
+                let sNum = String(index + 1).padStart(3, '0');
+                let audioUrl = `${currentReciterServer}${sNum}.mp3`;
+                grid.innerHTML += `
+                    <div class="item-card">
+                        <div>
+                            <h4>سورة ${name}</h4>
+                            <span style="font-size: 0.75rem; color: var(--gold-light);">${currentReciterName}</span>
+                        </div>
+                        <button class="btn-gold" style="padding: 6px 14px;" onclick="playAudio('${audioUrl}', 'سورة ${name} - ${currentReciterName}')">
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        const azkarList = [
+            "«سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ»",
+            "«أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ الَّذِي لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ وَأَتُوبُ إِلَيْهِ»",
+            "«لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ الْعَلِيِّ الْعَظِيمِ»",
+            "«اللَّهُمَّ صَلِّ وَسَلِّمْ وَبَارِكْ عَلَى نَبِيِّنَا مُحَمَّدٍ»"
+        ];
+        let zikrIndex = 0;
+        function nextZikr() {
+            zikrIndex = (zikrIndex + 1) % azkarList.length;
+            document.getElementById('zikrText').textContent = azkarList[zikrIndex];
+        }
+
+        const defaultAdhkar = [
+            { text: "رضيت بالله رباً، وبالإسلام ديناً، وبمحمد صلى الله عليه وسلم نبياً.", target: 3 },
+            { text: "حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم.", target: 7 },
+            { text: "اللهم أنت ربي لا إله إلا أنت، خلقتني وأنا عبدك...", target: 1 },
+            { text: "سبحان الله وبحمده عدد خلقه ورضا نفسه وزنة عرشه ومداد كلماته.", target: 3 },
+            { text: "لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير.", target: 100 }
+        ];
+
+        function getStoredAdhkar() {
+            const todayStr = new Date().toDateString();
+            const savedDate = localStorage.getItem('eshraqat_date');
+            let savedData = JSON.parse(localStorage.getItem('eshraqat_adhkar'));
+
+            if (savedDate !== todayStr || !savedData) {
+                localStorage.setItem('eshraqat_date', todayStr);
+                savedData = defaultAdhkar.map(item => ({ ...item, count: item.target }));
+                localStorage.setItem('eshraqat_adhkar', JSON.stringify(savedData));
+            }
+            return savedData;
+        }
+
+        let interactiveDhkar = getStoredAdhkar();
+
+        function renderAdhkar() {
+            const container = document.getElementById('dhkarContainer');
+            container.innerHTML = '';
+            interactiveDhkar.forEach((item, index) => {
+                const isFinished = item.count === 0;
+                container.innerHTML += `
+                    <div class="dhikr-card">
+                        <div class="dhikr-text">${item.text}</div>
+                        <button class="dhikr-counter-btn" style="${isFinished ? 'background:#48BB78; color:#fff;' : ''}" onclick="decrementCounter(${index})" id="btn-${index}">
+                            ${isFinished ? 'تم ✓' : item.count}
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        function decrementCounter(index) {
+            if (interactiveDhkar[index].count > 0) {
+                interactiveDhkar[index].count--;
+                localStorage.setItem('eshraqat_adhkar', JSON.stringify(interactiveDhkar));
+                renderAdhkar();
+            }
+        }
+
+        window.onload = function() {
+            renderSurahsList();
+            renderAdhkar();
+        };
+    </script>
+</body>
+</html>
