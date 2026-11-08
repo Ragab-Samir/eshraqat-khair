@@ -280,6 +280,36 @@
             100% { transform: scale(0.95); opacity: 0.7; }
         }
 
+        .reciters-scroll {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+            white-space: nowrap;
+            scrollbar-width: thin;
+            scrollbar-color: var(--gold-primary) var(--bg-main);
+        }
+
+        .reciter-tab {
+            background: rgba(12, 34, 27, 0.8);
+            border: 1px solid var(--gold-border);
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .reciter-tab:hover, .reciter-tab.active-reciter {
+            background: rgba(212, 175, 55, 0.15);
+            color: var(--gold-primary);
+            border-color: var(--gold-primary);
+        }
+
         .items-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -524,20 +554,15 @@
             </div>
         </section>
 
-        <!-- 3. صفحة التلاوات (الحصري والمعيقلي كاملاً) -->
+        <!-- 3. صفحة التلاوات -->
         <section id="quran" class="page-section">
             <div class="glass-card">
                 <h2 style="color: var(--gold-primary); margin-bottom: 6px;"><i class="fa-solid fa-book-open-reader"></i> المصحف المرتل (القرآن كاملاً)</h2>
-                <p style="color: var(--text-muted); margin-bottom: 20px;">استمع إلى سور القرآن الكريم كاملاً بصوت الشيخين الفاضلين:</p>
+                <p style="color: var(--text-muted); margin-bottom: 16px;">اختر القارئ واستمع إلى سور القرآن الكريم كاملاً:</p>
                 
-                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                    <button class="btn-gold" onclick="loadReciter('hussary', 'الشيخ محمود خليل الحصري')" id="reciterHussary" style="flex:1;">محمود خليل الحصري (كاملًا)</button>
-                    <button class="btn-outline" onclick="loadReciter('maher', 'الشيخ ماهر المعيقلي')" id="reciterMaher" style="flex:1;">ماهر المعيقلي (كاملًا)</button>
-                </div>
+                <div class="reciters-scroll" id="recitersTabsContainer"></div>
 
-                <div id="surahListGrid" class="items-grid" style="max-height: 450px; overflow-y: auto; padding-left: 5px;">
-                    <!-- يتم تعبئة السور الـ 114 برمجياً هنا -->
-                </div>
+                <div id="surahListGrid" class="items-grid" style="max-height: 450px; overflow-y: auto; padding-left: 5px;"></div>
             </div>
         </section>
 
@@ -626,57 +651,88 @@
         const titleEl = document.getElementById('nowPlayingTitle');
 
         function playAudio(url, title) {
+            audio.pause();
+            audio.currentTime = 0;
+            
             audio.src = url;
             titleEl.textContent = title;
-            audio.play();
-            playIcon.className = 'fa-solid fa-pause';
+            audio.play().then(() => {
+                playIcon.className = 'fa-solid fa-pause';
+            }).catch(e => {
+                console.log("Playback error:", e);
+            });
         }
 
         function togglePlay() {
             if (!audio.src) return;
             if (audio.paused) {
                 audio.play();
-                playIcon.className = 'fa-solid fa-pause';
+                playIcon.className = 'fa-solid fa-play';
             } else {
                 audio.pause();
                 playIcon.className = 'fa-solid fa-play';
             }
         }
 
+        audio.onpause = function() {
+            playIcon.className = 'fa-solid fa-play';
+        };
+        audio.onplay = function() {
+            playIcon.className = 'fa-solid fa-pause';
+        };
+
         const surahNames = [
             "الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المداثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","اللليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"
         ];
 
-        let currentReciterServer = "https://server13.mp3quran.net/husr/";
-        let currentReciterName = "محمود خليل الحصري";
+        // قائمة القراء النهائية (بدون حسن صالح ومصطفى إسماعيل نهائياً)
+        const recitersList = [
+            { id: 'hussary', name: 'محمود خليل الحصري', server: 'https://server13.mp3quran.net/husr/' },
+            { id: 'maher', name: 'ماهر المعيقلي', server: 'https://server11.mp3quran.net/maher/' },
+            { id: 'afs', name: 'مشاري بن راشد العفاسي', server: 'https://server8.mp3quran.net/afs/' },
+            { id: 'sds', name: 'عبد الرحمن السديس', server: 'https://server11.mp3quran.net/sds/' },
+            { id: 'minsh', name: 'محمد صديق المنشاوي', server: 'https://server10.mp3quran.net/minsh/' },
+            { id: 'yasser', name: 'ياسر الدوسري', server: 'https://server11.mp3quran.net/yasser/' },
+            { id: 'gmd', name: 'سعد الغامدي', server: 'https://server7.mp3quran.net/s_gmd/' },
+            { id: 'fares', name: 'فارس عباد', server: 'https://server8.mp3quran.net/frs_a/' },
+            { id: 'basit', name: 'عبد الباسط عبد الصمد', server: 'https://server7.mp3quran.net/basit/' }
+        ];
 
-        function loadReciter(type, name) {
-            currentReciterName = name;
-            if(type === 'hussary') {
-                currentReciterServer = "https://server13.mp3quran.net/husr/";
-                document.getElementById('reciterHussary').className = "btn-gold";
-                document.getElementById('reciterMaher').className = "btn-outline";
-            } else {
-                currentReciterServer = "https://server11.mp3quran.net/maher/";
-                document.getElementById('reciterMaher').className = "btn-gold";
-                document.getElementById('reciterHussary').className = "btn-outline";
-            }
+        let currentReciterIndex = 0;
+
+        function renderRecitersTabs() {
+            const container = document.getElementById('recitersTabsContainer');
+            container.innerHTML = '';
+            recitersList.forEach((reciter, index) => {
+                container.innerHTML += `
+                    <button class="reciter-tab ${index === currentReciterIndex ? 'active-reciter' : ''}" onclick="selectReciter(${index})">
+                        ${reciter.name}
+                    </button>
+                `;
+            });
+        }
+
+        function selectReciter(index) {
+            currentReciterIndex = index;
+            renderRecitersTabs();
             renderSurahsList();
         }
 
         function renderSurahsList() {
             const grid = document.getElementById('surahListGrid');
             grid.innerHTML = '';
+            const activeReciter = recitersList[currentReciterIndex];
+
             surahNames.forEach((name, index) => {
                 let sNum = String(index + 1).padStart(3, '0');
-                let audioUrl = `${currentReciterServer}${sNum}.mp3`;
+                let audioUrl = `${activeReciter.server}${sNum}.mp3`;
                 grid.innerHTML += `
                     <div class="item-card">
                         <div>
                             <h4>سورة ${name}</h4>
-                            <span style="font-size: 0.75rem; color: var(--gold-light);">${currentReciterName}</span>
+                            <span style="font-size: 0.75rem; color: var(--gold-light);">${activeReciter.name}</span>
                         </div>
-                        <button class="btn-gold" style="padding: 6px 14px;" onclick="playAudio('${audioUrl}', 'سورة ${name} - ${currentReciterName}')">
+                        <button class="btn-gold" style="padding: 6px 14px;" onclick="playAudio('${audioUrl}', 'سورة ${name} - ${activeReciter.name}')">
                             <i class="fa-solid fa-play"></i>
                         </button>
                     </div>
@@ -744,6 +800,7 @@
         }
 
         window.onload = function() {
+            renderRecitersTabs();
             renderSurahsList();
             renderAdhkar();
         };
