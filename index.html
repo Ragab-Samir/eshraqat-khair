@@ -6,7 +6,7 @@
     <title>إشراقة خير | القرآن الكريم والإذاعات والأذكار</title>
     
     <!-- ربط تطبيق الويب التقدمي PWA -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#071712">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -104,7 +104,7 @@
             font-size: 0.85rem;
             font-weight: 700;
             cursor: pointer;
-            display: none;
+            display: flex;
             align-items: center;
             gap: 6px;
             transition: var(--transition);
@@ -461,7 +461,7 @@
             <button class="nav-btn" onclick="switchPage('prayer', this)"><i class="fa-solid fa-clock"></i> المواقيت</button>
             
             <button id="installAppBtn" class="install-btn">
-                <i class="fa-solid fa-download"></i> تثبيت
+                <i class="fa-solid fa-download"></i> تثبيت التطبيق
             </button>
         </nav>
     </header>
@@ -616,21 +616,30 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW error:', err));
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW error:', err));
             });
         }
 
         let deferredPrompt;
         const installBtn = document.getElementById('installAppBtn');
+        
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
             installBtn.style.display = 'flex';
-            installBtn.addEventListener('click', () => {
-                installBtn.style.display = 'none';
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
                 deferredPrompt.prompt();
-                deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
-            });
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    installBtn.style.display = 'none';
+                }
+                deferredPrompt = null;
+            } else {
+                alert("للتثبيت اليدوي على الهاتف: افتح قائمة المتصفح واضغط على (إضافة إلى الشاشة الرئيسية) أو (تثبيت التطبيق).");
+            }
         });
 
         function switchPage(pageId, btnElement) {
@@ -667,7 +676,7 @@
             if (!audio.src) return;
             if (audio.paused) {
                 audio.play();
-                playIcon.className = 'fa-solid fa-play';
+                playIcon.className = 'fa-solid fa-pause';
             } else {
                 audio.pause();
                 playIcon.className = 'fa-solid fa-play';
@@ -685,7 +694,6 @@
             "الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المداثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","اللليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"
         ];
 
-        // قائمة القراء النهائية (بدون حسن صالح ومصطفى إسماعيل نهائياً)
         const recitersList = [
             { id: 'hussary', name: 'محمود خليل الحصري', server: 'https://server13.mp3quran.net/husr/' },
             { id: 'maher', name: 'ماهر المعيقلي', server: 'https://server11.mp3quran.net/maher/' },
