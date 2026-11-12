@@ -95,7 +95,8 @@
             background: rgba(212, 175, 55, 0.08);
         }
 
-        .install-btn {
+        /* زر التثبيت الأنيق */
+        .install-app-btn {
             background: rgba(212, 175, 55, 0.15);
             border: 1px solid var(--gold-primary);
             color: var(--gold-light);
@@ -110,7 +111,7 @@
             transition: var(--transition);
         }
 
-        .install-btn:hover {
+        .install-app-btn:hover {
             background: var(--gold-primary);
             color: #071712;
         }
@@ -435,6 +436,57 @@
             color: var(--gold-primary);
         }
 
+        /* نافذة الإرشاد المبسطة غير المزعجة (تظهر فقط عند الحاجة بأسلوب راقي) */
+        .install-guide-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .guide-box {
+            background: #0D261E;
+            border: 1px solid var(--gold-primary);
+            padding: 24px;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            color: var(--text-white);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .guide-box h3 {
+            color: var(--gold-primary);
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+        }
+
+        .guide-box p {
+            font-size: 0.95krem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .close-guide-btn {
+            background: var(--gold-primary);
+            color: #071712;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
         @media (max-width: 768px) {
             .desktop-nav { display: none; }
             .mobile-bottom-nav { display: flex; }
@@ -460,11 +512,21 @@
             <button class="nav-btn" onclick="switchPage('adhkar', this)"><i class="fa-solid fa-hands-praying"></i> الأذكار</button>
             <button class="nav-btn" onclick="switchPage('prayer', this)"><i class="fa-solid fa-clock"></i> المواقيت</button>
             
-            <button id="installAppBtn" class="install-btn">
+            <!-- زر التثبيت الدائم -->
+            <button id="installAppBtn" class="install-app-btn">
                 <i class="fa-solid fa-download"></i> تثبيت التطبيق
             </button>
         </nav>
     </header>
+
+    <!-- نافذة إرشادية مبسطة وناعمة لا تظهر إلا عند الضغط -->
+    <div id="installGuideModal" class="install-guide-modal">
+        <div class="guide-box">
+            <h3><i class="fa-solid fa-mobile-screen-button"></i> تثبيت تطبيق إشراقة خير</h3>
+            <p id="guideText">لتثبيت التطبيق على جهازك بكل سهولة، يرجى فتح قائمة المتصفح واختيار <strong>"إضافة إلى الشاشة الرئيسية"</strong> أو <strong>"تثبيت التطبيق"</strong>.</p>
+            <button class="close-guide-btn" onclick="closeGuide()">حسناً</button>
+        </div>
+    </div>
 
     <main class="container">
         
@@ -614,41 +676,39 @@
     </nav>
 
     <script>
-        // تسجيل Service Worker بشكل ذاتي وآمن داخل الصفحة لمنع أخطاء المسارات
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                const swCode = `
-                    self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
-                    self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
-                    self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
-                `;
-                const blob = new Blob([swCode], { type: 'text/javascript' });
-                const swUrl = URL.createObjectURL(blob);
-                navigator.serviceWorker.register(swUrl).catch(err => console.log('SW registration failed:', err));
-            });
-        }
-
         let deferredPrompt;
         const installBtn = document.getElementById('installAppBtn');
-        
+        const installModal = document.getElementById('installGuideModal');
+        const guideText = document.getElementById('guideText');
+
+        // التقاط حدث التثبيت التلقائي للنظام إن توفر
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            installBtn.style.display = 'flex';
         });
 
+        // التعامل مع الضغط على زر التثبيت الدائم
         installBtn.addEventListener('click', async () => {
             if (deferredPrompt) {
+                // إذا كان المتصفح يدعم التثبيت الفوري
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    installBtn.style.display = 'none';
-                }
                 deferredPrompt = null;
             } else {
-                alert("للتثبيت اليدوي:\n- أندرويد: افتح قائمة المتصفح (3 نقاط) واضغط (تثبيت التطبيق) أو (إضافة إلى الشاشة الرئيسية).\n- آيفون: اضغط زر المشاركة (Share) ثم (إضافة إلى الشاشة الرئيسية).");
+                // إذا لم يدعم المتصفح التثبيت الفوري (أو آيفون)، نحدد نوع الجهاز لنعطيه الإرشاد الأدق بددون رسائل منبثقة عشوائية
+                const isIos = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+                if (isIos) {
+                    guideText.innerHTML = 'لتثبيت التطبيق على آيفون:<br>1. اضغط على زر <b>المشاركة (Share)</b> في الأسفل.<br>2. اختر <b>"إضافة إلى الشاشة الرئيسية" (Add to Home Screen)</b>.';
+                } else {
+                    guideText.innerHTML = 'لتثبيت التطبيق:<br>افتح قائمة المتصفح (النقاط الثلاث بالأعلى) واضغط على <b>"تثبيت التطبيق"</b> أو <b>"إضافة إلى الشاشة الرئيسية"</b>.';
+                }
+                installModal.style.display = 'flex';
             }
         });
+
+        function closeGuide() {
+            installModal.style.display = 'none';
+        }
 
         function switchPage(pageId, btnElement) {
             document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active-page'));
@@ -776,6 +836,8 @@
             { text: "لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير.", target: 100 }
         ];
 
+        let interactiveDhkar = getStoredAdhkar();
+
         function getStoredAdhkar() {
             const todayStr = new Date().toDateString();
             const savedDate = localStorage.getItem('eshraqat_date');
@@ -788,8 +850,6 @@
             }
             return savedData;
         }
-
-        let interactiveDhkar = getStoredAdhkar();
 
         function renderAdhkar() {
             const container = document.getElementById('dhkarContainer');
