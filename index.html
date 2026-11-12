@@ -614,9 +614,17 @@
     </nav>
 
     <script>
+        // تسجيل Service Worker بشكل ذاتي وآمن داخل الصفحة لمنع أخطاء المسارات
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW error:', err));
+                const swCode = `
+                    self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
+                    self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+                    self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
+                `;
+                const blob = new Blob([swCode], { type: 'text/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl).catch(err => console.log('SW registration failed:', err));
             });
         }
 
@@ -638,7 +646,7 @@
                 }
                 deferredPrompt = null;
             } else {
-                alert("للتثبيت اليدوي على الهاتف: افتح قائمة المتصفح واضغط على (إضافة إلى الشاشة الرئيسية) أو (تثبيت التطبيق).");
+                alert("للتثبيت اليدوي:\n- أندرويد: افتح قائمة المتصفح (3 نقاط) واضغط (تثبيت التطبيق) أو (إضافة إلى الشاشة الرئيسية).\n- آيفون: اضغط زر المشاركة (Share) ثم (إضافة إلى الشاشة الرئيسية).");
             }
         });
 
