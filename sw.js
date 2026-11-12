@@ -1,7 +1,8 @@
-const CACHE_NAME = 'eshraqat-v1';
+const CACHE_NAME = 'eshraqat-v2';
 const assetsToCache = [
-  '/',
-  '/index.html'
+  './',
+  './index.html',
+  './manifest.json'
 ];
 
 // تثبيت الخدمة

@@ -2,7 +2,7 @@
   "name": "إشراقة خير",
   "short_name": "إشراقة خير",
   "description": "القرآن الكريم والاستماع والرقية والأذكار وصدقة جارية",
-  "start_url": "/",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#071712",
   "theme_color": "#071712",
