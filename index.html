@@ -8,9 +8,12 @@
     <!-- ربط تطبيق الويب التقدمي PWA -->
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#071712">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="إشراقة خير">
+    <link rel="icon" type="image/png" href="./icons/icon-192.png">
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
 
     <!-- خطوط وأيقونات -->
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -676,10 +679,25 @@
     </nav>
 
     <script>
+        // تسجيل الـ Service Worker (شرط أساسي لإمكانية التثبيت)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => console.error('SW error:', err));
+            });
+        }
+
         let deferredPrompt;
         const installBtn = document.getElementById('installAppBtn');
         const installModal = document.getElementById('installGuideModal');
         const guideText = document.getElementById('guideText');
+
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+        const ua = navigator.userAgent.toLowerCase();
+        // آيباد الحديث يعرّف نفسه كـ Macintosh، لذلك نفحص دعم اللمس أيضاً
+        const isIos = /iphone|ipad|ipod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+        // إخفاء الزر إذا كان التطبيق مثبتاً ويعمل بالفعل
+        if (isStandalone) installBtn.style.display = 'none';
 
         // التقاط حدث التثبيت التلقائي للنظام إن توفر
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -687,21 +705,22 @@
             deferredPrompt = e;
         });
 
-        // التعامل مع الضغط على زر التثبيت الدائم
+        window.addEventListener('appinstalled', () => {
+            installBtn.style.display = 'none';
+            deferredPrompt = null;
+        });
+
+        // التعامل مع الضغط على زر التثبيت
         installBtn.addEventListener('click', async () => {
             if (deferredPrompt) {
-                // إذا كان المتصفح يدعم التثبيت الفوري
                 deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
+                await deferredPrompt.userChoice;
                 deferredPrompt = null;
+            } else if (isIos) {
+                guideText.innerHTML = 'لتثبيت التطبيق على آيفون / آيباد:<br>1. افتح الموقع في متصفح <b>Safari</b>.<br>2. اضغط على زر <b>المشاركة (Share)</b>.<br>3. اختر <b>"إضافة إلى الشاشة الرئيسية" (Add to Home Screen)</b>.';
+                installModal.style.display = 'flex';
             } else {
-                // إذا لم يدعم المتصفح التثبيت الفوري (أو آيفون)، نحدد نوع الجهاز لنعطيه الإرشاد الأدق بددون رسائل منبثقة عشوائية
-                const isIos = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
-                if (isIos) {
-                    guideText.innerHTML = 'لتثبيت التطبيق على آيفون:<br>1. اضغط على زر <b>المشاركة (Share)</b> في الأسفل.<br>2. اختر <b>"إضافة إلى الشاشة الرئيسية" (Add to Home Screen)</b>.';
-                } else {
-                    guideText.innerHTML = 'لتثبيت التطبيق:<br>افتح قائمة المتصفح (النقاط الثلاث بالأعلى) واضغط على <b>"تثبيت التطبيق"</b> أو <b>"إضافة إلى الشاشة الرئيسية"</b>.';
-                }
+                guideText.innerHTML = 'لتثبيت التطبيق:<br>افتح قائمة المتصفح (⋮) واضغط على <b>"تثبيت التطبيق"</b> أو <b>"إضافة إلى الشاشة الرئيسية"</b>.<br>وإذا لم يظهر الخيار فافتح الموقع في متصفح <b>Chrome</b>.';
                 installModal.style.display = 'flex';
             }
         });
